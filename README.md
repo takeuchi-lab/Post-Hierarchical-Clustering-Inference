@@ -2,7 +2,7 @@
 クラスタリング流れ(仮)
 <div align="center">
 
-![](figs/intro.svg)
+![](figs/dendrogram_p_black.svg)
 
 </div>
 
@@ -53,10 +53,12 @@ al. [1] によって提案されたSelective Inference の枠組みを適用し,
 `$ pyton calc_p.py data.csv data/sigma.csv data/xi.csv 9`
 
 `calc_p.py`, `calc_p_all.py`両方とも, 次のcsvファイルが`result`ディレクトリ以下に出力される
-- output (クラスタリング結果 scikit-learnのlinkageの出力`Z`と同じフォーマット)
 - naive_p
 - selective_p
 - selective_p_aprox
+また, `cluster_result`ディレクトリ以下に次のものが出力される
+- output (クラスタリング結果 scikit-learnのlinkageの出力`Z`と同じフォーマット)
+
 
 ### クラスタ中心の各次元での検定
 `each_dim`ディレクトリ以下にあるものが相当する
@@ -95,4 +97,33 @@ al. [1] によって提案されたSelective Inference の枠組みを適用し,
 p-valueは各csvファイルに次元数分のp値が記載される
 - naive_p 
 - selective_p
+
+ `cluster`, `each_dim`ともに, `data`ディレクトリにtoyデータを入れておいたので, 使い方の確認に使ってください
+
+## ディレクトリ
+
+```
+root/
+    |- cluster/
+          |- cluster_result/
+          |- cpp_source/
+          |- data/
+          |- interval/
+          |- stat/
+          |- calc_p_all.py
+          |- calc_p.py
+          |- ...
+    |- each_dim/
+          |- cpp_source/
+          |- data/
+          |- result/...
+          |- execute_allstep.py
+          |- execute.py
+          |- ...
+    |- figs
+    |- README.md
+```
+### 注意事項
+#### dataについて
+- data.csvは値のみのformatとしてください. そうでない場合, errorとなります.
 
