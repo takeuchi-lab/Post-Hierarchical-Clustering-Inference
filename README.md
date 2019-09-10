@@ -1,5 +1,5 @@
 # Post Hierarchical Clustering Inference
-クラスタリング流れ(仮)
+画像(仮)
 <div align="center">
 
 ![](figs/dendrogram_p_black.svg)
@@ -27,7 +27,9 @@ al. [1] によって提案されたSelective Inference の枠組みを適用し,
 2. `data`ディレクトリに使いたいデータを入れ, 分散($\Sigma$, $\xi^2$)推定用とp値計算用に分ける (目安 分散推定: p値計算 = 2 : 8)
 3. `preprocess.py`によって`data`ディレクトリ以下に `sigma.csv`, `xi.csv`が出力され, `stat`と`interval`のディレクトリが作成されていることを確認する <br>
 
-使用例 `preprocess.py data_estimate.csv`
+使用例 <br>
+    
+    $ preprocess.py data_estimate.csv
 
 
 #### クラスタリングと検定の実行
@@ -40,7 +42,9 @@ al. [1] によって提案されたSelective Inference の枠組みを適用し,
 - $\xi^2$のファイルパス
 - どの階層か
 
-使用例: `$ pyton calc_p.py data.csv data/sigma.csv data/xi.csv 0` 
+使用例: <br>
+
+    $ pyton calc_p.py data.csv data/sigma.csv data/xi.csv 0 
 
 #### 全ての階層でのp値を計算したい場合
 `calc_p_all.py`を実行する
@@ -50,19 +54,24 @@ al. [1] によって提案されたSelective Inference の枠組みを適用し,
 - $\xi^2$のファイルパス
 - 全部で何階層か? (サンプルサイズ-1が全階層となる)
 使用例 $n=10, d=5$のデータの場合 (全ステップ数$n-1$を入力する必要があります) <br>
-`$ pyton calc_p.py data.csv data/sigma.csv data/xi.csv 9`
+
+使用例
+    
+    $ pyton calc_p.py data.csv data/sigma.csv data/xi.csv 9
+
+
 
 `calc_p.py`, `calc_p_all.py`両方とも, 次のcsvファイルが`result`ディレクトリ以下に出力される
 - naive_p
 - selective_p
 - selective_p_aprox
 また, `cluster_result`ディレクトリ以下に次のものが出力される
-- output (クラスタリング結果 scikit-learnのlinkageの出力`Z`と同じフォーマット)
+- output (クラスタリング結果 scikit-learnの[linkage](https://docs.scipy.org/doc/scipy-0.14.0/reference/generated/scipy.cluster.hierarchy.linkage.html)の出力`Z`と同じフォーマット)
 
 
 ### クラスタ中心の各次元での検定
 `each_dim`ディレクトリ以下にあるものが相当する
-#### Preprocessing
+#### 1. Preprocessing
 1. `data`というディレクトリを作成する 
 2. `data`ディレクトリに使いたいデータを入れ, 分散($\Sigma$, $\xi^2$)推定用とp値計算用に分ける (目安 分散推定: p値計算 = 2 : 8)
 3. `preprocess.py`によって`data`ディレクトリ以下に `Sigma.csv`, `Xi.csv`が出力されることを確認する <br>
@@ -70,7 +79,7 @@ al. [1] によって提案されたSelective Inference の枠組みを適用し,
 使用例 `preprocess.py data_estimate.csv`
 
 
-#### クラスタリングと検定の実行
+#### 2. クラスタリングと検定の実行
 
 ##### 一つの階層でのp値を計算したい場合
 `execute.py`を実行する
@@ -98,6 +107,7 @@ p-valueは各csvファイルに次元数分のp値が記載される
 - naive_p 
 - selective_p
 
+##### toyデータ
  `cluster`, `each_dim`ともに, `data`ディレクトリにtoyデータを入れておいたので, 使い方の確認に使ってください
 
 ## ディレクトリ
