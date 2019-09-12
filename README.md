@@ -110,6 +110,9 @@ p-valueは各csvファイルに次元数分のp値が記載される
 ##### toyデータ
  `cluster`, `each_dim`ともに, `data`ディレクトリにtoyデータを入れておいたので, 使い方の確認に使ってください
 
+### デンドログラムにp値を付与した図の表示
+`dendrogram_p.py`の中にある`pv_dendrogram`の関数をimportして使ってください
+
 ## ディレクトリ
 
 ```
