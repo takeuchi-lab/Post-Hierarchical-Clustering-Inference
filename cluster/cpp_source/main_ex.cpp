@@ -36,7 +36,7 @@ MatrixXd load_csv(std::string fn){
 int main(int argc, char ** argv){
     if (argc < 4){
         std::cout << "plese input below" << std::endl;
-        std::cout << "./pci_cluster_ex datafile sigmafile xivalue step"
+        std::cout << "./pci_cluster_ex datafile sigmafile xivalue step";
         std::cout << "example: ./pci_cluster_ex data/data.csv data/sigma.csv 0.9262638032548505 4" << std::endl;
         return 0;
     }
