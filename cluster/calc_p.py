@@ -29,10 +29,26 @@ def ImpSamp(sig2, tau, L, U, num_samp=10**6):
 """区間は昇順にソートされていることを想定"""
 def calc_multi_p(tau, mean, std, L, U):
     deno = np.sum(stats.norm.cdf(-(L - mean) / std) - stats.norm.cdf(-(U - mean) / std))
-    p = np.argmax( (L < tau) * (tau < U) )
-    add = np.sum( stats.norm.cdf(-(L[p+1:] - mean) / std) - stats.norm.cdf(-(U[p+1:] - mean) / std) ) if p + 1 < len(L) else 0.0
-    nume = stats.norm.cdf(-(tau - mean) / std) - stats.norm.cdf(-(U[p] - mean) / std) + add 
-    return nume / deno
+    if deno <= 0:
+        if len(L) < 2:
+            return ImpSamp(std, tau, L, U)
+        else:
+            p1 = ImpSbamp(std, U[0], L[0], U[1])
+            p2 = ImpSamp(std, L[1], L[0], U[1])
+            p = np.argmax(((L < tau) * (tau < U)))
+            if p == 0:
+                deno = ( 1 + p2 / (1 - p1) ) + 1. / ( 1 + (1 - p1) / p2 )
+                nume = ImpSamp(std, tau, L[0], U[0])
+                return nume / deno
+            else:
+                deno = 1 + (1 - p1) / p2
+                nume = ImpSamp(std, tau, L[1], U[1])
+                return nume / deno
+    else:
+        p = np.argmax( (L < tau) * (tau < U) )
+        add = np.sum( stats.norm.cdf(-(L[p+1:] - mean) / std) - stats.norm.cdf(-(U[p+1:] - mean) / std) ) if p + 1 < len(L) else 0.0
+        nume = stats.norm.cdf(-(tau - mean) / std) - stats.norm.cdf(-(U[p] - mean) / std) + add
+        return nume / deno
 
 
 def calc_p_approx(chi2, df, final_interval):
@@ -47,27 +63,12 @@ def calc_p_approx(chi2, df, final_interval):
     var = 1. / (18 * df) + 1. / (162 * df**2) - 37. / (11664 * df**3)
     
     LL = (L / df)**(1. / 6) - (L / df)**(1. / 3) / 2 + (L / df)**(1. / 2) / 3
-    if U != np.inf:
+    if (U != np.inf).all():
         LU = (U / df)**(1. / 6) - (U / df)**(1. / 3) / 2 + (U / df)**(1. / 2) / 3
-    elif U == np.inf:
+    elif (U == np.inf).all():
         LU = U
     selective_p = calc_multi_p(Lx, mean, np.sqrt(var), LL, LU)
     return selective_p
-
-    # # 複数区間の場合のImpSampをどうするか
-    # if len(LL) > 1:
-    #     selective_p = calc_multi_p(Lx, mean, np.sqrt(var), LL, LU)  # ← ここ実装する
-    #     return selective_p
-    # else:
-    #     deno = stats.norm.cdf(-(LL - mean) / np.sqrt(var)) - stats.norm.cdf(-(U - mean)/ np.sqrt(var))
-    #     if np.isfinite(deno):
-    #         nume =  stats.norm.cdf(-(Lx - mean) / np.sqrt(var)) - stats.norm.cdf(-(U - mean)/ np.sqrt(var))
-    #         selective_p = nume / deno
-    #         return selective_p
-    #     else:
-    #         selective_p = ImpSamp(var, Lx, LL, LU)
-    #         return selective_p
-            
 
 
 if __name__ == '__main__':

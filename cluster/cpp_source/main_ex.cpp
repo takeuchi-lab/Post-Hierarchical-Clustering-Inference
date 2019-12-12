@@ -41,17 +41,15 @@ int main(int argc, char ** argv){
         return 0;
     }
     // データ作成
-    std::vector<double> time_vec;
+    // std::vector<double> time_vec;
     std::string datafile = argv[1];
     MatrixXd data = load_csv(datafile);
     int n = data.rows();
     int d = data.cols();
-    std::cout << "n: " << n << std::endl;
-    std::cout << "d: " << d << std::endl;
-
+    
     // クラスタリング    
-    std::chrono::system_clock::time_point  start, end; // 型は auto で可
-    start = std::chrono::system_clock::now();
+    // std::chrono::system_clock::time_point  start, end; // 型は auto で可
+    // start = std::chrono::system_clock::now();
     std::vector< std::vector<double> > result;
     std::vector< std::vector<ind> > cluster_head_vec, cluster_next_vec, cluster_tail_vec;
     std::vector< std::pair<int, int> > selected_c;
@@ -63,15 +61,14 @@ int main(int argc, char ** argv){
     MatrixXd Sigma = load_csv(sigmafile);
     Sigma = MatrixXd::Identity(n, n);
     double xi = std::stod(argv[3]);
-    // double xi = 0.9262638032548505;
     int step = std::stoi(argv[4]);
     std::vector<VectorXd> final_interval;
     double chi2;
     std::tie(chi2, final_interval) = PCI_cluster_ward_step(data, cluster_head_vec, cluster_next_vec, cluster_tail_vec, selected_c, Sigma, xi, step);
-    end = std::chrono::system_clock::now();
-    double elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end-start).count();
-    std::cout << elapsed << "[milisec]" << std::endl;
-    time_vec.push_back(elapsed);
+    // end = std::chrono::system_clock::now();
+    // double elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end-start).count();
+    // std::cout << elapsed << "[milisec]" << std::endl;
+    // time_vec.push_back(elapsed);
 
     //  クラスタリング結果出力
     std::string fname1 = "output";
@@ -104,6 +101,4 @@ int main(int argc, char ** argv){
     }
     Interval << std::endl;
     Interval.close();
-    
-
 }

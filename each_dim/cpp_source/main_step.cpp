@@ -7,19 +7,28 @@
 
 using namespace Eigen;
 
-int main(){
+int main(int argc, char ** argv){
+    int n = std::stoi(argv[1]);
+    int d = std::stoi(argv[2]);
+    int step = std::stoi(argv[3]);
+    int epo = std::stoi(argv[4]);
+    std::cout << "n: " << n << std::endl;
+    std::cout << "d: " << d << std::endl;    
+    std::cout << "epo: " << epo << std::endl;
+    std::cout << "step: " << step << std::endl;
     // データ作成
     std::vector<double> time_vec;
-    for (int epoch = 0; epoch < 1; epoch++){
-        std::cout << "------epoch: " << epoch << "------" << std::endl; 
+    for (int epoch = 0; epoch < epo; epoch++){
+        // std::cout << "------epoch: " << epoch << "------" << std::endl; 
         std::mt19937 seed_gen(epoch); 
         std::default_random_engine engine(seed_gen());
         std::normal_distribution<> dist(0.0, 1.0);
-        int n = 155;
-        int d = 30;
-        std::cout << "n: " << n << std::endl;
-        std::cout << "d: " << d << std::endl;
-        MatrixXd data = MatrixXd::Random(n, d);
+        MatrixXd data(n, d);
+        for (int i = 0; i < n; i++){
+            for (int j = 0; j < d; j++){
+                data(i, j) = dist(engine);
+            }
+        }
         // クラスタリング    
         // std::cout << "------------------Clustering------------------" << std::endl;
         std::chrono::system_clock::time_point  start, end; // 型は auto で可
@@ -50,20 +59,32 @@ int main(){
         std::vector<double> naive_p, selective_p;
         MatrixXd Sigma = MatrixXd::Identity(n, n);
         MatrixXd Xi = MatrixXd::Identity(d, d);
-        int step = n - 2;
         std::tie(naive_p, selective_p) = PCI_ward_Degs_step(data, cluster_head_vec, cluster_next_vec, cluster_tail_vec, selected_c, Sigma, Xi, step);
         end = std::chrono::system_clock::now();
         double elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end-start).count();
         std::cout << elapsed << "[milisec]" << std::endl;
-        time_vec.push_back(elapsed);
-        for (int i = 0; i < selective_p.size(); i++){
-            std::cout << selective_p.at(i) << std::endl;
+        // for (int i = 0; i < selective_p.size(); i++){
+        //     std::cout << selective_p.at(i) << std::endl;
+        // }
+        
+        // selective_p ファイル出力
+        std::string fname2 = "./result/selective_p_epoch" + std::to_string(epo) + "_n" + std::to_string(n) + "_d" + std::to_string(d) + "_step" + std::to_string(step) + ".csv";
+        std::ofstream csvfile;
+        csvfile.open(fname2, std::ios::app);
+        for (int j = 0; j < d - 1; j++){
+            csvfile << selective_p.at(j) << ",";
         }
+        csvfile << selective_p.at(d - 1) << std::endl;
+        csvfile.close();
+
+        // naive_p ファイル出力
+        std::string fname3 = "./result/naive_p_epoch" + std::to_string(epo) + "_n" + std::to_string(n) + "_d" + std::to_string(d) + "_step" + std::to_string(step) + ".csv";
+        std::ofstream naivefile;
+        naivefile.open(fname3, std::ios::app);
+        for (int j = 0; j < d - 1; j++){
+            naivefile << naive_p.at(j) << ",";
+        }
+        naivefile << naive_p.at(d - 1) << std::endl;
+        naivefile.close();
     }
-    // std::string fn = "time_step";
-    // std::ofstream timefile(fn + "_d" + ".csv");
-    // for (int i = 0; i < time_vec.size(); i++){
-    //     timefile << time_vec.at(i) << ", ";
-    // }
-    // timefile.close();
 }

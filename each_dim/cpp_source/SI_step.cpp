@@ -237,7 +237,7 @@ std::pair<std::vector<double>, std::vector<double>> PCI_ward_Degs_step(MatrixXd 
     VectorXd tilde_sigma2 = Xi.diagonal() * delta_ab.transpose() * Sigma * delta_ab;
     // メインループ
     for (int s = 0; s < step + 1; s++){
-        // std::cout << "-----------step: " << s << "---------------" << std::endl;
+        std::cout << "-----------step: " << s << "---------------" << std::endl;
         std::vector<ind> cluster_head = cluster_head_vec.at(s);
         std::vector<ind> cluster_next = cluster_next_vec.at(s);
         std::vector<ind> cluster_tail = cluster_tail_vec.at(s);
@@ -397,6 +397,7 @@ std::pair<std::vector<double>, std::vector<double>> PCI_ward_Degs_step(MatrixXd 
                 new_interval.col(0) = slice(x_small, flag3);
                 new_interval.col(1) = slice(x_large, flag3);
                 std::vector<VectorXd> final_interval = intersection(L, U, new_interval);
+                
                 selective_p.at(j) = calc_multisec_p(tau_ab(j), sig, final_interval);
             }
             else {

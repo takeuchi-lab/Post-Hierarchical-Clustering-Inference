@@ -69,10 +69,10 @@ int main(int argc, char ** argv){
     std::string fname1 = "output";
     std::ofstream output("./result/" + fname1 + ".csv");
     for (int i = 0; i < n - 1; i++){
-        for (int j = 0; j < result.at(i).size(); j++){
+        for (int j = 0; j < result.at(i).size() - 1; j++){
             output << result.at(i).at(j) << ",";
         }
-        output << std::endl;
+        output << result.at(i).at(result.at(i).size() - 1) << std::endl;
     }
     output.close();
 
@@ -80,17 +80,19 @@ int main(int argc, char ** argv){
     // selective_p ファイル出力
     std::string fname2 = "selective_p";
     std::ofstream csvfile("./result/" + fname2 + "_step" + std::to_string(step) + ".csv");
-    for (int j = 0; j < d; j++){
+    for (int j = 0; j < d-1; j++){
         csvfile << selective_p.at(j) << ",";
     }
-    csvfile << std::endl;
+    csvfile << selective_p.at(d - 1);
+    // csvfile << std::endl;
     csvfile.close();
 
         // naive_p ファイル出力
     std::string fname3 = "naive_p";
     std::ofstream naivefile("./result/" + fname3 + "_step" + std::to_string(step) + ".csv");
-    for (int j = 0; j < d; j++){
+    for (int j = 0; j < d - 1; j++){
         naivefile << naive_p.at(j) << ",";
-    }    
+    }
+    naivefile << naive_p.at(d - 1);    
     naivefile.close();
 }

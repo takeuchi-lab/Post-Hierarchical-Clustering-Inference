@@ -31,7 +31,6 @@ VectorXd calcCentroid(MatrixXd &data, std::vector<int> &c_ind_set){
     int d = data.cols();
     VectorXd sumX = VectorXd::Zero(d);
     for (const int &i : c_ind_set){
-        // std::cout << "data.row(i): " << data.row(i).transpose() << std::endl;
         sumX += data.row(i);
     }
 
@@ -208,14 +207,9 @@ std::pair<double, std::vector<VectorXd>> PCI_cluster_ward_step(MatrixXd &data, s
     }
 
     // delta_ab
-    // std::cout << "step: " << step << std::endl;
     int a = selected_c.at(step).first;
     int b = selected_c.at(step).second;
-    // std::cout << "a: " << a << std::endl;
-    // std::cout << "b: " << b << std::endl;
     VectorXd delta_ab = indecator_vec.at(a) / c_ind_set_vec.at(a).size() - indecator_vec.at(b) / c_ind_set_vec.at(b).size();
-    // std::cout << "delta" << std::endl;
-    // std::cout << delta_ab << std::endl;
     // \tau_ab
     VectorXd a_centroid = calcCentroid(data, c_ind_set_vec.at(a));
     VectorXd b_centroid = calcCentroid(data, c_ind_set_vec.at(b));
@@ -224,21 +218,11 @@ std::pair<double, std::vector<VectorXd>> PCI_cluster_ward_step(MatrixXd &data, s
     // 検定統計量 \chi
     double delta2 = delta_ab.transpose() * delta_ab;
     double delsig = (delta_ab.transpose() * Sigma) * delta_ab;
-    // std::cout << "del * sig: " << (delta_ab.transpose() * Sigma) << std::endl;
-    // std::cout << "delsig: " << delsig << std::endl;
-    // std::cout << "delta * Sigma * delta: " << delsig << std::endl;
     double check_sig = pow(xi, 2) * delsig / delta2;
-    // std::cout << "check_sig: " << check_sig << std::endl;
     VectorXd Z = tau_ab.array() / (xi * sqrt(delsig));
-    // std::cout << "xi: " << xi << std::endl;
     double chi2 = Z.transpose() * Z;
     double tau2 = tau_ab.transpose() * tau_ab;
     double P_vec_2 = sqrt(tau2 / delta2);
-    // std::cout << "P_vec_2: " << P_vec_2 << std::endl; 
-    // VectorXd X_delta = data.transpose() * delta_ab;
-    // double P_vec_2 = sqrt(X_delta.transpose() * X_delta);
-    // double chi2 = pow(P_vec_2, 2) / check_sig;
-    // std::cout << "chi2: "  << chi2 << std::endl;
     double chi = sqrt(chi2);
 
     // メインループ
@@ -282,8 +266,6 @@ std::pair<double, std::vector<VectorXd>> PCI_cluster_ward_step(MatrixXd &data, s
         std::vector<double> wBw;
         bool flag = false;
         int counter = 0;
-        // std::cout << "a: " << a << std::endl;
-        // std::cout << "b: " << b << std::endl;
         for (int k1 = 0; k1 < n - s - 1; k1++){
             for (int k2 = k1 + 1; k2 < n - s; k2++){
                 if ((k1 == a) && (k2 == b)){
@@ -307,13 +289,7 @@ std::pair<double, std::vector<VectorXd>> PCI_cluster_ward_step(MatrixXd &data, s
                              + indecator_k12 * k12_centroid.transpose() - indecator_vec.at(k1) * k1_centroid.transpose() - indecator_vec.at(k2) * k2_centroid.transpose();
                 double scalar = delta_ab.transpose() * mat * tau_ab;
                 wBv.push_back(scalar / (P_vec_2 * delta2));
-                // if (abs(scalar / (P_vec_2 * delta2)) < pow(10, -15)){
-                //     wBv.push_back(0.0);
-                // }
-                // else{
-                //     wBv.push_back(scalar / (P_vec_2 * delta2));
-                // }
-                //wBw
+
                 double nume_abab = delta_ab.transpose() * indecator_ab * indecator_ab.transpose() * delta_ab;
                 double abab = nume_abab / (c_ind_set_vec.at(a).size() + c_ind_set_vec.at(b).size());
                 double nume_aa = delta_ab.transpose() * indecator_vec.at(a) * indecator_vec.at(a).transpose() * delta_ab;
@@ -328,14 +304,6 @@ std::pair<double, std::vector<VectorXd>> PCI_cluster_ward_step(MatrixXd &data, s
                 double k22 = nume_k22 / c_ind_set_vec.at(k2).size();
                 double kappa = -abab + aa + bb + k1212 - k11 - k22;
                 wBw.push_back(kappa / delta2);
-                // if (abs(scalar / (P_vec_2 * delta2)) < pow(10, -15)){
-                //     wBw.push_back(0.0);
-                // }
-                // else{
-                //     wBw.push_back(kappa / delta2);
-                // }
-                
-                // counter++;
             }
             if(flag) break;
         }
@@ -346,12 +314,6 @@ std::pair<double, std::vector<VectorXd>> PCI_cluster_ward_step(MatrixXd &data, s
         VectorXd vBv_vec = Map<VectorXd> (vBv.data(), vBv.size());
         VectorXd wBv_vec = Map<VectorXd> (wBv.data(), wBv.size());
         VectorXd wBw_vec = Map<VectorXd> (wBw.data(), wBw.size());
-        // std::cout << "vBv" << std::endl;
-        // std::cout << vBv_vec.transpose() << std::endl;
-        // std::cout << "wBv" << std::endl;
-        // std::cout << wBv_vec.transpose() << std::endl;
-        // std::cout << "wBw" << std::endl;
-        // std::cout << wBw_vec.transpose() << std::endl;
 
         // 区間計算
         VectorXd discriminant(combination(n - s, 2));
@@ -363,59 +325,29 @@ std::pair<double, std::vector<VectorXd>> PCI_cluster_ward_step(MatrixXd &data, s
         VectorXd beta = 2 * check_sig * (wBv_vec.array() - check_sig * chi * wBw_vec.array());
         VectorXd gamma = vBv_vec.array() - 2 * chi * check_sig * wBv_vec.array() + pow(check_sig, 2) * chi2 * wBw_vec.array();
 
-        // discriminant = 4 * check_sig * (pow(wBv_vec.array(), 2) - wBw_vec.array() * vBv_vec.array());
         discriminant = pow(beta.array() , 2) - 4 * alpha.array() * gamma.array();
         
-        // Array<bool, Dynamic, 1> cond1 = wBw_vec.array() == 0;
-        // Array<bool, Dynamic, 1> cond1_l = (wBw_vec.array() == 0) && (cBv_j.array() < 0.0);
-        // Array<bool, Dynamic, 1> cond1_u = (cBc_j.array() == 0) && (cBv_j.array() > 0.0);
-        // std::cout << "alpha" << std::endl;
-        // std::cout << alpha.transpose() << std::endl;
-        // std::cout << "beta" << std::endl;
-        // std::cout << beta.transpose() << std::endl;
-        // std::cout << "gamma" << std::endl;
-        // std::cout << gamma.transpose() << std::endl;
         Array<bool, Dynamic, 1> cond1 = alpha.array() == 0;
         Array<bool, Dynamic, 1> cond1_l = (alpha.array() == 0) && (beta.array() < 0.0);
         Array<bool, Dynamic, 1> cond1_u = (alpha.array() == 0) && (beta.array() > 0.0);
         // 線形event
         if (cond1.any() == 1){
-            // std::cout << "linear" << std::endl;
             if (cond1_l.any() == 1){
                 // 0とmaxとる必要があるか
-                // std::cout << "^^^kouho_L^^^" << std::endl;
-                // std::cout << (-slice(gamma, cond1_l).array() / (slice(beta, cond1_l)).array()).transpose() << std::endl;
-                // std::cout << ((-slice(vBv_vec,cond1_l).array() / (2 * check_sig * slice(wBv_vec, cond1_l).array())).array() + chi).transpose() << std::endl;
-                // double forL_1 = (-slice(gamma, cond1_l).array() / (slice(beta, cond1_l)).array()).maxCoeff();
                 double forL_1 = ((-slice(vBv_vec,cond1_l).array() / (2 * check_sig * slice(wBv_vec, cond1_l).array())).array() + chi).maxCoeff();
-                // std::cout << "^^^cond1_l^^^" << std::endl; 
-                // std::cout << forL_1 << std::endl;
                 forL.push_back(std::max(forL_1, 0.0));
-                // std::cout << "L: " << std::max(forL_1, 0.0) << std::endl;
             }
             if (cond1_u.any() == 1){
-                // 0より大きいっていう条件が必要か?
-                // std::cout << "^^^kouho_U^^^" << std::endl;
-                // std::cout << -slice(gamma, cond1_u).array() / (slice(beta, cond1_u)).array() << std::endl;
-                // std::cout << (-slice(vBv_vec,cond1_u).array() / (2 * check_sig * slice(wBv_vec, cond1_u).array())).array() + chi << std::endl;
-                // forU.push_back((-slice(gamma, cond1_u).array() / (slice(beta, cond1_u)).array()).minCoeff());
                 forU.push_back(((-slice(vBv_vec,cond1_u).array() / (2 * check_sig * slice(wBv_vec, cond1_u).array())).array() + chi).minCoeff());
-                // std::cout << "U: " << ((-slice(vBv_vec,cond1_u).array() / (2 * check_sig * slice(wBv_vec, cond1_u).array())).array() + chi).minCoeff() << std::endl;
-            }
+                }
         }
         // 下に凸
         Array<bool, Dynamic, 1> cond2 = wBw_vec.array() > 0.0;
         if (cond2.any() == 1){
-            // std::cout << "^^^cond2^^^" << std::endl;
-            // std::cout << ((-slice(beta, cond2).array() - sqrt(slice(discriminant, cond2).array())).array() / (2 * slice(alpha, cond2).array())).maxCoeff() << std::endl;
             double forL_2 = ((-slice(beta, cond2).array() - sqrt(slice(discriminant, cond2).array())).array() / (2 * slice(alpha, cond2).array())).maxCoeff();
             forL.push_back(std::max(forL_2, 0.0));
             forU.push_back(((-slice(beta, cond2).array() + sqrt(slice(discriminant, cond2).array())).array() / (2 * slice(alpha, cond2).array())).minCoeff());
-            // std::cout << "sita" << std::endl;
-            // std::cout << "size: " << forL.size() << std::endl;
-            // std::cout << "L: " << std::max(forL_2, 0.0) << std::endl;
-            // std::cout << "U: " << ((-slice(beta, cond2).array() + sqrt(slice(discriminant, cond2).array())).array() / (2 * slice(alpha, cond2).array())).minCoeff() << std::endl; 
-        }
+            }
         // 線形と下に凸で共通部分をとる
         double maxforL, minforU;
         if (forL.size() > 0) maxforL = *std::max_element(forL.begin(), forL.end());
@@ -430,23 +362,12 @@ std::pair<double, std::vector<VectorXd>> PCI_cluster_ward_step(MatrixXd &data, s
         if (interval(1) > minforU) {
                 interval(1) = minforU;
         }
-        // std::cout << "--------------------------" << std::endl;
-        // std::cout << "interval: " << interval.transpose() << std::endl;
-        // std::cout << "--------------------------" << std::endl;
         // 上に凸
         Array<bool, Dynamic, 1> cond3 = (wBw_vec.array() < 0.0) && (discriminant.array() > 0.0);
         if (cond3.any() == 1){
-            // std::cout << "ue" << std::endl;
             VectorXd leftside = (-slice(beta, cond3).array() + sqrt(slice(discriminant, cond3).array())).array() / (2 * slice(alpha, cond3).array());
             VectorXd rightside = (-slice(beta, cond3).array() - sqrt(slice(discriminant, cond3).array())).array() / (2 * slice(alpha, cond3).array());
             MatrixXd new_interval(leftside.size(), 2);
-            // new_interval.col(0) = leftside.array() + tau_ab(j);
-            // new_interval.col(1) = rightside.array() + tau_ab(j);
-            
-            // Array<bool, Dynamic, 1> cond3_l_negative = leftside.array() <= 0;
-            // std::cout << "leftside: " << leftside.transpose() << std::endl;
-            // std::cout << "rightside: " << rightside.transpose() << std::endl;
-            // Array<bool, Dynamic, 1> cond3_l_positive = leftside.array() > 0;
 
             new_interval.col(0) = leftside;
             new_interval.col(1) = rightside;
@@ -462,58 +383,35 @@ std::pair<double, std::vector<VectorXd>> PCI_cluster_ward_step(MatrixXd &data, s
         }    
     }
     // 最終的な区間作成 下に凸で区間にすっぽり入ってしまうものと共通部分をとる
-    // double naive_p;
-    // double selective_p;
     double L = interval(0);
     double U = interval(1);
-    // std::cout << "L: " << L << std::endl;
-    // std::cout << "U: " << U << std::endl;
     double sig = sqrt(check_sig);
     std::vector<VectorXd> final_interval;
     if (section_mat.size() > 0){
         VectorXd x_small = section_mat.col(0);
-        // std::cout << "x_small: " << x_small.transpose() << std::endl;
         VectorXd x_large = section_mat.col(1);
-        // std::cout << "x_large: " << x_large.transpose() << std::endl;
         // x_L < L < x_U
         Array<bool, Dynamic, 1> flag1 = (x_small.array() < L) && (L < x_large.array());
         while (flag1.any() == 1){
-                // std::cout << "in flag1" << std::endl;
                 L = slice(x_large, flag1).maxCoeff();
-                // std::cout << "L: " << L << std::endl;
                 flag1 = (x_small.array() < L) && (L < x_large.array());
         }   
         // x_L < U < x_U
-        // std::cout << "L: " << L << std::endl;
-        // std::cout << "U: " << U << std::endl;
         Array<bool, Dynamic, 1> flag2 = (x_small.array() < U) && (U < x_large.array());
         while (flag2.any() == 1){
-            // std::cout << "in flag2" << std::endl;
             U = slice(x_small, flag2).minCoeff();
-            // std::cout << "U: " << U << std::endl;
             flag2 = (x_small.array() < U) && (U < x_large.array());
         }      
         // L < x_L < x_U < U
         Array<bool, Dynamic, 1> flag3 = (L < x_small.array()) && (x_large.array() < U);
         if (flag3.any() == 1){
-            // std::cout << "in flag3" << std::endl;
             MatrixXd new_interval(slice(x_small, flag3).size(), 2);
             new_interval.col(0) = slice(x_small, flag3);
             new_interval.col(1) = slice(x_large, flag3);
-            // std::vector<VectorXd> final_interval = intersection(L, U, new_interval);
             final_interval = intersection(L, U, new_interval);
             return {chi2, final_interval};
-            // selective_p = calc_multisec_p(chi, sig, final_interval);
         }
         else {
-            // if ((norm_cdf(- tau_ab(j) / sig) - norm_cdf(-U / sig)) / (norm_cdf(-L / sig) - norm_cdf(-U / sig)) > 1) std::cout << "One interval p-value over 1!!!" << std::endl;
-            // if ((norm_cdf(- tau_ab(j) / sig) - norm_cdf(-U / sig)) / (norm_cdf(-L / sig) - norm_cdf(-U / sig)) < 0) std::cout << "One interval p-value under 0!!!" << std::endl;
-            // if ((norm_cdf(-L / sig) - norm_cdf(-U / sig)) == 0.000000000000000){
-            //     selective_p.at(j) = ImpSamp(sig, tau_ab(j), L, U);
-            // }
-            // else {
-            // selective_p.at(j) = (norm_cdf(- tau_ab(j) / sig) - norm_cdf(-U / sig)) / (norm_cdf(-L / sig) - norm_cdf(-U / sig));
-            // }
             VectorXd new_interval(2);
             new_interval(0) = L; 
             new_interval(1) = U;
@@ -522,24 +420,10 @@ std::pair<double, std::vector<VectorXd>> PCI_cluster_ward_step(MatrixXd &data, s
         }
     } 
     else {
-        // if ((norm_cdf(- tau_ab(j) / sig) - norm_cdf(-U / sig)) / (norm_cdf(-L / sig) - norm_cdf(-U / sig)) > 1) std::cout << "One interval p-value over 1!!!" << std::endl;
-        // if ((norm_cdf(- tau_ab(j) / sig) - norm_cdf(-U / sig)) / (norm_cdf(-L / sig) - norm_cdf(-U / sig)) < 0) std::cout << "One interval p-value under 0!!!" << std::endl;
-        // if ((norm_cdf(-L / sig) - norm_cdf(-U / sig)) == 0.000000000000000){
-        //         selective_p.at(j) = ImpSamp(sig, tau_ab(j), L, U);
-        //     }
-        // else {
-        //     selective_p.at(j) = (norm_cdf(- tau_ab(j) / sig) - norm_cdf(-U / sig)) / (norm_cdf(-L / sig) - norm_cdf(-U / sig));
-        // }
         VectorXd new_interval(2);
         new_interval(0) = L;
         new_interval(1) = U;
         final_interval.push_back(new_interval);
         return {chi2, final_interval};
     }
-    // double sub1 = norm_cdf(tau_ab(j) / sig);
-    // double sub2 = norm_cdf(-tau_ab(j) / sig); 
-    // naive_p.at(j) = 2 * std::min(sub1, sub2); 
-
-    // return {naive_p, selective_p};
-    // return chi2, final_interval;    
 }
