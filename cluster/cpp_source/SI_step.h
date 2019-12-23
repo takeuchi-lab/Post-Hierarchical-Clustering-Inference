@@ -31,4 +31,4 @@ std::vector<VectorXd> intersection(double L, double U, MatrixXd &new_interval);
 // intersection()が区間を昇順に出力することを利用する
 double calc_multisec_p(double tau, double sig, std::vector<VectorXd> &final_interval);
 // PCI cluster
-std::pair<double, std::vector<VectorXd>> PCI_cluster_ward_step(MatrixXd &data, std::vector<std::vector<ind>> &cluster_head_vec, std::vector<std::vector<ind>> &cluster_next_vec, std::vector<std::vector<ind>> &cluster_tail_vec, std::vector<std::pair<int, int>> &selected_c, MatrixXd &Sigma, double xi, int step);
+std::pair<double, std::vector<VectorXd>> PCI_cluster_ward_step(MatrixXd &data, std::vector<std::vector<ind>> &cluster_head_vec, std::vector<std::vector<ind>> &cluster_next_vec, std::vector<std::vector<ind>> &cluster_tail_vec, std::vector<std::pair<int, int>> &selected_c, MatrixXd &Sigma, double xi, int step, int threads);

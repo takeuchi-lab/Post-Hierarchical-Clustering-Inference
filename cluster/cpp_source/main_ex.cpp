@@ -34,22 +34,19 @@ MatrixXd load_csv(std::string fn){
 }
 
 int main(int argc, char ** argv){
-    if (argc < 4){
+    if (argc < 5){
         std::cout << "plese input below" << std::endl;
-        std::cout << "./pci_cluster_ex datafile sigmafile xivalue step";
-        std::cout << "example: ./pci_cluster_ex data/data.csv data/sigma.csv 0.9262638032548505 4" << std::endl;
+        std::cout << "./pci_cluster_ex_parallel datafile sigmafile xivalue step threads";
+        std::cout << "example: ./pci_cluster_ex data/data.csv data/sigma.csv 0.9262638032548505 4 10" << std::endl;
         return 0;
     }
     // データ作成
-    // std::vector<double> time_vec;
     std::string datafile = argv[1];
     MatrixXd data = load_csv(datafile);
     int n = data.rows();
     int d = data.cols();
     
     // クラスタリング    
-    // std::chrono::system_clock::time_point  start, end; // 型は auto で可
-    // start = std::chrono::system_clock::now();
     std::vector< std::vector<double> > result;
     std::vector< std::vector<ind> > cluster_head_vec, cluster_next_vec, cluster_tail_vec;
     std::vector< std::pair<int, int> > selected_c;
@@ -59,17 +56,14 @@ int main(int argc, char ** argv){
     std::string sigmafile = argv[2];
     // std::string xifile = argv[3];
     MatrixXd Sigma = load_csv(sigmafile);
-    Sigma = MatrixXd::Identity(n, n);
+    // Sigma = MatrixXd::Identity(n, n);
     double xi = std::stod(argv[3]);
     int step = std::stoi(argv[4]);
+    int threads = std::stoi(argv[5]);
     std::vector<VectorXd> final_interval;
     double chi2;
-    std::tie(chi2, final_interval) = PCI_cluster_ward_step(data, cluster_head_vec, cluster_next_vec, cluster_tail_vec, selected_c, Sigma, xi, step);
-    // end = std::chrono::system_clock::now();
-    // double elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end-start).count();
-    // std::cout << elapsed << "[milisec]" << std::endl;
-    // time_vec.push_back(elapsed);
-
+    std::tie(chi2, final_interval) = PCI_cluster_ward_step(data, cluster_head_vec, cluster_next_vec, cluster_tail_vec, selected_c, Sigma, xi, step, threads);
+    
     //  クラスタリング結果出力
     std::string fname1 = "output";
     std::ofstream output("./cluster_result/" + fname1 + ".csv");
