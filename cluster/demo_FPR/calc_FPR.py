@@ -5,7 +5,9 @@ import scipy.stats as stats
 import sys
 import subprocess
 import os
+from tqdm import tqdm
 from mpmath import *
+import seaborn as sns
 
 
 def calc_p(stat, df, final_interval):
@@ -94,42 +96,80 @@ def calc_chi2_mp(stat, df, final_interval, digit=1000):
 
 if __name__ == '__main__':
     
+    sns.set()
+
     args = sys.argv
-    datafile = args[1]
-    sigmafile = args[2]
-    xifile = args[3]
-    step = args[4]
+    epo = args[1]
+    n = args[2]
+    d = args[3]
+    threads = args[4]
     
-    xi = pd.read_csv("data/xi.csv", header=None).values.reshape(-1, )[0]
-    
-    if not os.path.isdir("cluster_result"):
-        os.mkdir("cluster_result")
-    
-    
-    statfile = "stat/test_stat" + "_step" + step + ".csv"
-    intervalfile = "interval/final_interval" + "_step" + step + ".csv"
-    if os.path.exists(statfile):
-        os.remove(statfile)
-    if os.path.exists(intervalfile):
-        os.remove(intervalfile)
-    
-    subprocess.run(['./pci_cluster_ex.exe', datafile, sigmafile, str(xi), step])
-    
-    
-    # 結果 読み込み
-    chi2, d = pd.read_csv(statfile, header=None).values.reshape(2, )
-    final_interval = pd.read_csv(intervalfile, header=None).values.reshape(-1, 2)
+    # last_step = int(n) - 1
+    n_list = list(np.arange(10, int(n) + 10, 10))
 
-    naive_p = 1 - stats.chi2.cdf(chi2, d)
-    selective_p = calc_chi2_mp(chi2, d, final_interval)
-    print("naive_p: ", naive_p)
-    print("selective_p: ", selective_p)
+    if not os.path.isdir("stat"):
+        os.mkdir("stat")    
 
-    naive_p = pd.DataFrame(naive_p)
-    selective_p = pd.DataFrame(selective_p)
+    if not os.path.isdir("interval"):
+        os.mkdir("interval")    
     
+    naive_p_all = []
+    selective_p_all = []
+    FPR_naive = []
+    FPR_selective = []
+    for n in tqdm(n_list):
+        statfile = "stat/test_stat_d" + "_epoch" + epo + "_step" + str(0) + "_n" + str(n) + "_d" + d + ".csv"
+        intervalfile = "interval/final_interval" + "_epoch" + epo + "_step" + str(0) + "_n" + str(n) + "_d" + d + ".csv"
+        if os.path.exists(statfile):
+            os.remove(statfile)
+        if os.path.exists(intervalfile):
+            os.remove(intervalfile)
+        
+        if int(threads) > 1:
+            subprocess.run(['./pci_cluster_FPR_parallel.exe', epo, str(n), d, str(0), threads])
+        else: 
+            subprocess.run(['./pci_cluster_FPR.exe', epo, str(n), d, str(0), str(1)])
+        
+        # 結果 読み込み
+        stat = pd.read_csv(statfile, header=None).values
+        chi2 = stat[:, 0]
+        df = stat[:, 1]
+        final_interval = pd.read_csv(intervalfile, header=None).values
+
+        naive_p = []
+        selective_p = []
+        for j in range(len(chi2)):
+            interval = final_interval[j].reshape(-1, 2)
+            naive_p.append(1 - stats.chi2.cdf(chi2[j], df[j]))
+            selective_p.append(calc_chi2_mp(chi2[j], df[j], interval))
+        
+        naive_p_all.append(naive_p)
+        selective_p_all.append(selective_p)
+
+        FPR_naive.append(np.sum(np.array(naive_p) < 0.05) / int(epo))
+        FPR_selective.append(np.sum(np.array(selective_p) < 0.05) / int(epo))
+    
+    naive_p_all = np.array(naive_p_all)
+    selective_p_all = np.array(selective_p_all)
+
     if not os.path.isdir("result"):
         os.mkdir("result")
-    naive_p.to_csv("result/naive_p.csv", header=None, index=False)
-    selective_p.to_csv("result/selective_p.csv", header=None, index=False)
+    pd.DataFrame(naive_p_all).to_csv("result/naive_p.csv", header=None, index=False)
+    pd.DataFrame(selective_p_all).to_csv("result/selective_p.csv", header=None, index=False)
+
+    if not os.path.isdir("fig"):
+        os.mkdir("fig")
+    # FPR_naive = naive_p_all[naive_p_all < 0.05].sum(axis=1) / int(epo)
+    # FPR_selective = selective_p_all[selective_p_all < 0.05].sum(axis=1) / int(epo)
+    plt.ylim([-0.05, 1.05])
+    plt.plot(n_list, FPR_naive, '-o',label="naive")
+    plt.plot(n_list, FPR_selective, '-o', label="selective")
+    plt.xlabel("$n$")
+    plt.ylabel("FPR")
+    plt.legend()
+    plt.savefig("fig/FPR_demo.pdf", pad_inches=0, bbox_inches='tight')
+    plt.show()
+
+
+    
     

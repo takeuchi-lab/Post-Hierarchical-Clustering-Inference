@@ -401,24 +401,28 @@ std::pair<std::vector<double>, std::vector<double>> PCI_ward_Degs_step(MatrixXd 
                 selective_p.at(j) = calc_multisec_p(tau_ab(j), sig, final_interval);
             }
             else {
-                if ((norm_cdf(- tau_ab(j) / sig) - norm_cdf(-U / sig)) / (norm_cdf(-L / sig) - norm_cdf(-U / sig)) > 1) std::cout << "One interval p-value over 1!!!" << std::endl;
-                if ((norm_cdf(- tau_ab(j) / sig) - norm_cdf(-U / sig)) / (norm_cdf(-L / sig) - norm_cdf(-U / sig)) < 0) std::cout << "One interval p-value under 0!!!" << std::endl;
-                if ((norm_cdf(-L / sig) - norm_cdf(-U / sig)) == 0.000000000000000){
+                double nume = (norm_cdf(- tau_ab(j) / sig) - norm_cdf(-U / sig));
+                double deno = (norm_cdf(-L / sig) - norm_cdf(-U / sig));
+                if ( (nume / deno) > 1) std::cout << "One interval p-value over 1!!!" << std::endl;
+                if ( (nume / deno) < 0) std::cout << "One interval p-value under 0!!!" << std::endl;
+                if (deno == 0.000000000000000){
                     selective_p.at(j) = ImpSamp(sig, tau_ab(j), L, U);
                 }
                 else {
-                selective_p.at(j) = (norm_cdf(- tau_ab(j) / sig) - norm_cdf(-U / sig)) / (norm_cdf(-L / sig) - norm_cdf(-U / sig));
+                selective_p.at(j) = nume / deno;
                 }
             }
         } 
         else {
-            if ((norm_cdf(- tau_ab(j) / sig) - norm_cdf(-U / sig)) / (norm_cdf(-L / sig) - norm_cdf(-U / sig)) > 1) std::cout << "One interval p-value over 1!!!" << std::endl;
-            if ((norm_cdf(- tau_ab(j) / sig) - norm_cdf(-U / sig)) / (norm_cdf(-L / sig) - norm_cdf(-U / sig)) < 0) std::cout << "One interval p-value under 0!!!" << std::endl;
-            if ((norm_cdf(-L / sig) - norm_cdf(-U / sig)) == 0.000000000000000){
+            double nume = (norm_cdf(- tau_ab(j) / sig) - norm_cdf(-U / sig));
+            double deno = (norm_cdf(-L / sig) - norm_cdf(-U / sig));
+            if ((nume / deno) > 1) std::cout << "One interval p-value over 1!!!" << std::endl;
+            if ((nume / deno < 0)) std::cout << "One interval p-value under 0!!!" << std::endl;
+            if (deno == 0.000000000000000){
                     selective_p.at(j) = ImpSamp(sig, tau_ab(j), L, U);
                 }
             else {
-                selective_p.at(j) = (norm_cdf(- tau_ab(j) / sig) - norm_cdf(-U / sig)) / (norm_cdf(-L / sig) - norm_cdf(-U / sig));
+                selective_p.at(j) = nume / deno;
             }
         }
         double sub1 = norm_cdf(tau_ab(j) / sig);

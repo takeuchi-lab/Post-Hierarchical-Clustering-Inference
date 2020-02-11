@@ -9,6 +9,45 @@ from tqdm import tqdm
 from mpmath import *
 
 
+def calc_p(stat, df, final_interval):
+    """
+    近似計算なしの切断カイ二乗分布でのp値計算
+    """
+    l = final_interval[:, 0]
+    u = final_interval[:, 1]
+    deno = np.sum(stats.chi2.cdf(u,df) - stats.chi2.cdf(l,df))
+    p = np.argmax( (l < stat) * (stat < u) )
+    add = np.sum( stats.chi2.cdf(u[p+1:], df) - stats.chi2.cdf(l[p+1:], df) ) if p + 1 < len(l) else 0.0
+    nume = stats.chi2.cdf(u[p], df) - stats.chi2.cdf(stat, df) + add
+    return nume / deno
+
+def calc_multi_p(tau, mean, std, L, U):
+    """
+    区間は昇順にソートされていることを想定
+    """
+    deno = np.sum(stats.norm.cdf(-(L - mean) / std) - stats.norm.cdf(-(U - mean) / std))
+    p = np.argmax( (L < tau) * (tau < U) )
+    add = np.sum( stats.norm.cdf(-(L[p+1:] - mean) / std) - stats.norm.cdf(-(U[p+1:] - mean) / std) ) if p + 1 < len(L) else 0.0
+    nume = stats.norm.cdf(-(tau - mean) / std) - stats.norm.cdf(-(U[p] - mean) / std) + add 
+    return nume / deno
+
+def calc_p_approx(stat, df, final_interval):
+    """
+    切断カイ二乗分布でのp値計算 正規近似var
+    """
+    L = final_interval[:, 0]
+    U = final_interval[:, 1]
+    # 近似
+    Lx = (stat / df)**(1. / 6) - (stat / df)**(1. / 3) / 2 + (stat / df)**(1. / 2) / 3
+    mean = 5. / 6 - 1. / (9 * df) - 7. / (648 * df**2) + 25. / (2187 * df**3)
+    var = 1. / (18 * df) + 1. / (162 * df**2) - 37. / (11664 * df**3)
+    
+    LL = (L / df)**(1. / 6) - (L / df)**(1. / 3) / 2 + (L / df)**(1. / 2) / 3
+    LU = (U / df)**(1. / 6) - (U / df)**(1. / 3) / 2 + (U / df)**(1. / 2) / 3
+    
+    selective_p = calc_multi_p(Lx, mean, np.sqrt(var), LL, LU)
+    return selective_p
+
 def calc_norm_mp(stat, final_interval, digit=1000):
     """
     高精度な切断正規分布でのp値計算
@@ -48,9 +87,9 @@ def calc_chi2_mp(stat, df, final_interval, digit=1000):
     nume = 0
     for i in range(len(l)):
         deno += chi2cdf(u[i], df, digit) - chi2cdf(l[i], df, digit)
-        if l[i] < chi2 < u[i]:
-            nume += chi2cdf(u[i], df, digit) - chi2cdf(chi2, df, digit)
-        elif u[i] > chi2 :
+        if l[i] < stat < u[i]:
+            nume += chi2cdf(u[i], df, digit) - chi2cdf(stat, df, digit)
+        elif u[i] > stat:
             nume += chi2cdf(u[i], df, digit) - chi2cdf(l[i], df, digit)
     return float(nume / deno)
 

@@ -49,7 +49,6 @@ def pv_dendrogram(sp, nap, start, output, root=0, width=100, height=0, decimal_p
     
     xarray = xarray[np.argsort(yarray, axis=0)[:, 2]]
     yarray = yarray[np.argsort(yarray, axis=0)[:, 2]]
-    count = 1
     
     for i in range(stepsize):
         if i >= start:

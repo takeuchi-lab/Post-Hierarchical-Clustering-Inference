@@ -1,3 +1,4 @@
+
 #include <bits/stdc++.h>
 #include <Eigen/Core>
 #include <fstream>
@@ -54,9 +55,7 @@ int main(int argc, char ** argv){
     
     //検定
     std::string sigmafile = argv[2];
-    // std::string xifile = argv[3];
     MatrixXd Sigma = load_csv(sigmafile);
-    // Sigma = MatrixXd::Identity(n, n);
     double xi = std::stod(argv[3]);
     int step = std::stoi(argv[4]);
     int threads = std::stoi(argv[5]);
