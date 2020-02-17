@@ -99,6 +99,7 @@ if __name__ == '__main__':
     sigmafile = args[2]
     xifile = args[3]
     step = args[4]
+    threads = int(args[5])
     
     xi = pd.read_csv("data/xi.csv", header=None).values.reshape(-1, )[0]
     
@@ -112,10 +113,10 @@ if __name__ == '__main__':
         os.remove(statfile)
     if os.path.exists(intervalfile):
         os.remove(intervalfile)
-    
-    subprocess.run(['./pci_cluster_ex.exe', datafile, sigmafile, str(xi), step])
-    
-    
+    if threads > 1:
+        subprocess.run(['./pci_cluster_ex_parallel.exe', datafile, sigmafile, str(xi), step, str(threads)])
+    else:
+        subprocess.run(['./pci_cluster_ex.exe', datafile, sigmafile, str(xi), step, str(1)])
     # 結果 読み込み
     chi2, d = pd.read_csv(statfile, header=None).values.reshape(2, )
     final_interval = pd.read_csv(intervalfile, header=None).values.reshape(-1, 2)
@@ -125,8 +126,8 @@ if __name__ == '__main__':
     print("naive_p: ", naive_p)
     print("selective_p: ", selective_p)
 
-    naive_p = pd.DataFrame(naive_p)
-    selective_p = pd.DataFrame(selective_p)
+    naive_p = pd.DataFrame([naive_p])
+    selective_p = pd.DataFrame([selective_p])
     
     if not os.path.isdir("result"):
         os.mkdir("result")

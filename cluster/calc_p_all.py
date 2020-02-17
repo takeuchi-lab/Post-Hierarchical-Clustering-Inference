@@ -100,6 +100,7 @@ if __name__ == '__main__':
     sigmafile = args[2]
     xifile = args[3]
     all_step = int(args[4])
+    threads = int(args[5])
     
     xi = pd.read_csv(xifile, header=None).values.reshape(-1, )[0]
     
@@ -108,7 +109,6 @@ if __name__ == '__main__':
     
     naive_p_all = []
     selective_p_all = []
-    selective_p_aprox_all = []
     for i in tqdm(range(all_step)):
         statfile = "stat/test_stat" + "_step" + str(i) + ".csv"
         intervalfile = "interval/final_interval" + "_step" + str(i) + ".csv"
@@ -117,7 +117,10 @@ if __name__ == '__main__':
         if os.path.exists(intervalfile):
             os.remove(intervalfile)
             
-        subprocess.run(['./pci_cluster_ex.exe', datafile, sigmafile, str(xi), str(i)])
+        if threads > 1:
+            subprocess.run(['./pci_cluster_ex_parallel.exe', datafile, sigmafile, str(xi), str(i), str(threads)])
+        else:
+            subprocess.run(['./pci_cluster_ex.exe', datafile, sigmafile, str(xi), str(i), str(1)])
 
         # 結果 読み込み
         chi2, d = pd.read_csv(statfile, header=None).values.reshape(2, )
