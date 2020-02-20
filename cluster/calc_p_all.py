@@ -1,13 +1,13 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+import seaborn as sns
 import scipy.stats as stats
 import sys
 import subprocess
 import os
 from tqdm import tqdm
 from mpmath import *
-
 
 def calc_p(stat, df, final_interval):
     """
@@ -99,8 +99,11 @@ if __name__ == '__main__':
     datafile = args[1]
     sigmafile = args[2]
     xifile = args[3]
-    all_step = int(args[4])
-    threads = int(args[5])
+    threads = int(args[4])
+    
+    data = pd.read_csv(datafile, header=None)
+    all_step = data.shape[0] - 1
+    
     
     xi = pd.read_csv(xifile, header=None).values.reshape(-1, )[0]
     

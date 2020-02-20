@@ -68,7 +68,12 @@ int main(int argc, char ** argv){
     std::ofstream output("./cluster_result/" + fname1 + ".csv");
     for (int i = 0; i < n - 1; i++){
         for (int j = 0; j < result.at(i).size(); j++){
-            output << result.at(i).at(j) << ",";
+            if (j == result.at(i).size() - 1){
+                output << result.at(i).at(j);
+            }
+            else {
+                output << result.at(i).at(j) << ",";
+            }
         }
         output << std::endl;
     }

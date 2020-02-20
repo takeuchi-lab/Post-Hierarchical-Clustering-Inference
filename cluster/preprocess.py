@@ -35,7 +35,7 @@ if __name__ == "__main__":
     Sigma = sigma * np.identity(data_p_preprocess.shape[0])
     
     Sigma = pd.DataFrame(Sigma)
-    Sigma.to_csv("data/Sigma.csv", header=None, index=False)
+    Sigma.to_csv("data/sigma.csv", header=None, index=False)
     
     xi = np.mean(esti_preprocess.var())
     xi = pd.DataFrame(np.array([xi]))

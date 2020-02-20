@@ -1,5 +1,4 @@
 # Post Hierarchical Clustering Inference
-画像(仮)
 <div align="center">
 
 ![](figs/dendrogram_p_black.svg)
@@ -17,36 +16,44 @@ DNA マイクロアレイにより計測された遺伝子発現量データの�
 ## Usage
 ### クラスタ中心間の検定
 `cluster`ディレクトリ以下にあるものが相当する
-#### コンパイル (実行ファイル作成)
+#### (必要時) コンパイル 
 次のコマンドで実行ファイルが`/cluster`直下に作成される
     
     $ cd /cluster/cpp_source
     $ make
-`pci_cluster_ex`, および並列実行用`pci_cluster_ex_parallel`    
+`pci_cluster_ex`, および並列実行用`pci_cluster_ex_parallel` の２つ
 
-#### Preprocessing
-1. `data`というディレクトリを作成する 
-2. `data`ディレクトリに使いたいデータを入れ, 分散($\Sigma$, $\xi^2$)推定用とp値計算用に分ける (目安 分散推定: p値計算 = 2 : 8)
-3. `preprocess.py`によって`data`ディレクトリ以下に `sigma.csv`, `xi.csv`が出力され, `stat`と`interval`のディレクトリが作成されていることを確認する <br>
+#### Preprocessing (実データ適用時)
+
+- 分散推定用とp値計算用にデータを分ける (分散推定: p値計算 = 2 : 8)
+- p値計算用は各変数で正規化される
+
+1. 前処理したいデータに対して, preprocess.pyを実行する
+2. `data`, `stat`, および`interval`のディレクトリが作成され, `data`ディレクトリに次のファイルが作成される
+    - `data.csv` : p値計算用
+    - `d_ind.csv` : どのデータをp値計算に用いるか 
+    - `estimate.csv` : 分散推定用
+    - `sigma.csv`, `xi.csv` : $\Sigma, \xi$それぞれ
 
 使用例 <br>
     
-    $ preprocess.py data_estimate.csv
+    $ preprocess.py data.csv
 
 
 #### クラスタリングと検定の実行
 
-##### 一つの階層でのp値を計算したい場合
+##### ある階層でのp値を計算したい場合
 `calc_p.py`を実行する
 以下の引数が必要である
 - データファイルパス
 - $\Sigma$のファイルパス
 - $\xi^2$のファイルパス
-- どの階層か
+- どの階層か (0 ~ n - 2)
+- 並列計算するかどうか (2以上で並列となり, 指定したコア数で並列化する)
 
 使用例: <br>
 
-    $ pyton calc_p.py data.csv data/sigma.csv data/xi.csv 0 
+    $ pyton calc_p.py data/data.csv data/sigma.csv data/xi.csv 0 1
 
 #### 全ての階層でのp値を計算したい場合
 `calc_p_all.py`を実行する
@@ -54,25 +61,53 @@ DNA マイクロアレイにより計測された遺伝子発現量データの�
 - データファイルパス
 - $\Sigma$のファイルパス
 - $\xi^2$のファイルパス
-- 全部で何階層か? (サンプルサイズ-1が全階層となる)
-使用例 $n=10, d=5$のデータの場合 (全ステップ数$n-1$を入力する必要があります) <br>
+- 並列計算するかどうか (2以上で並列となり, 指定したコア数で並列化する)
 
-使用例
-    
-    $ pyton calc_p_all.py data.csv data/sigma.csv data/xi.csv 9
+使用例 <br>
 
+    $ pyton calc_p_all.py data/data.csv data/sigma.csv data/xi.csv 1
 
 
-`calc_p.py`, `calc_p_all.py`両方とも, 次のcsvファイルが`result`ディレクトリ以下に出力される
+<font color="red"> 注: `calc_p_all.py`, `calc_p.py`で使われる実行ファイルの拡張子は`exe`なので適宜変更してください </font>
+
+`calc_p.py`, `calc_p_all.py`両方とも, `result`ディレクトリ以下にp値計算結果が出力される
 - naive_p
 - selective_p
   
+`stat`には, 各階層での統計量とデータの次元数を記載したcsvファイルが, `interval`にはselective-p値計算時に必要な区間が出力される
+
 また, `cluster_result`ディレクトリ以下に次のものが出力される
 - output (クラスタリング結果 scikit-learnの[linkage](https://docs.scipy.org/doc/scipy-0.14.0/reference/generated/scipy.cluster.hierarchy.linkage.html)の出力`Z`と同じフォーマット)
+
+#### デモ
+`cluster/data/`直下に簡単なdemoデータが置いてある
+
+<div align="center">
+
+![50%](figs/demo_data.svg)
+
+</div>
+
+例 <br>
+
+    $ python calc_p_all.py data/demo_data.csv data/demo_sigma.csv data/demo_xi.csv 1
+
+さらに <br>
+
+    $ python dendrogram_p.py
+と実行するとp値を付与したデンドログラムが得られる
+
+<div align="center">
+
+![50%](figs/demo_dendrogram_p.svg)
+
+</div>
+
 
 #### デモ (FPR)
 `demo_FPR`ディレクトリにFPRの計算プログラムがある <br>
 `calc_FPR.py`を実行することで, 計算される
+
 
 
 必要な引数
