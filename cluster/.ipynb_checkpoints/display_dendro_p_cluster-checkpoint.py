@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from scipy.cluster.hierarchy import dendrogram, fcluster
+import seaborn as sns
 
 def pv_dendrogram(sp, nap, start, output, root=0, width=100, height=0, decimal_place=3, font_size=15, **kwargs):
     """
@@ -64,22 +65,20 @@ def pv_dendrogram(sp, nap, start, output, root=0, width=100, height=0, decimal_p
             plt.annotate("{}".format(np.round(sp[i], decimal_place)), (x2, y2), color="fuchsia", xytext=(0, -5), textcoords='offset points', va='top', ha='center', label="s", fontsize=font_size)
             plt.annotate("{}".format(np.round(nap[i], decimal_place)), (x1, y1), color="darkcyan", xytext=(0, -5), textcoords='offset points', va='top', ha='center', label="n", fontsize=font_size)
         
-    plt.annotate("selective", color='magenta',xy=(np.max(xarray) - np.max(xarray)*0.15, max(output[:, 2])), fontsize=font_size)
-    plt.annotate("naive", color='darkcyan',xy=(np.max(xarray) - np.max(xarray)*0.2, max(output[:, 2])), fontsize=font_size)
+    plt.annotate("selective", color='magenta',xy=(np.max(xarray) - np.max(xarray)*0.2, max(output[:, 2])), fontsize=font_size)
+    plt.annotate("naive", color='darkcyan',xy=(np.max(xarray) - np.max(xarray)*0.35, max(output[:, 2])), fontsize=font_size)
     return ddata
 
 """
-example
+example for demo
 """
 if __name__ == "__main__":
+    sns.set()
+    output = pd.read_csv("cluster_result/output.csv", header=None).iloc[:, :4].values
     
-    step = 5
+    sp = pd.read_csv("result/selective_p.csv", header=None).values.reshape(-1, )
+    nap = pd.read_csv("result/naive_p.csv", header=None).values.reshape(-1, )
     
-    output = pd.read_csv("result/output.csv", header=None).iloc[:, :4].values
-    
-    sp = pd.read_csv("result/selective-p.csv", header=None).values
-    nap = pd.read_csv("result/naive-p.csv", header=None).values
-    
-    pv_dendrogram(sp, nap, 0, output, root=0, width=20, height=0, decimal_place=3, font_size=15, color_threshold=5, leaf_font_size=15)
-    plt.savefig("dendrogram_p.svg", pad_inches=0, bbox_inches='tight')
+    pv_dendrogram(sp, nap, 0, output, root=1, width=40, height=0, decimal_place=3, font_size=15, above_threshold_color='k', leaf_font_size=15)
+    plt.savefig("demo_dendrogram_p.svg", pad_inches=0, bbox_inches='tight')
     plt.show()

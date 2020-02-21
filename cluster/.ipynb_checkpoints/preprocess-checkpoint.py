@@ -32,8 +32,11 @@ if __name__ == "__main__":
 
     # 推定用のデータサイズが実験用のデータサイズと異なる場合
     sigma = np.mean(esti_preprocess.T.var())
-    Sigma = sigma * np.identity(data_p_preprocess.shape[0])    
-    Xi = esti_preprocess.cov()
-
-    Sigma.to_csv("data/Sigma.csv", header=None, index=False)
-    Xi.to_csv("data/Xi.csv", header=None, index=False)
+    Sigma = sigma * np.identity(data_p_preprocess.shape[0])
+    
+    Sigma = pd.DataFrame(Sigma)
+    Sigma.to_csv("data/sigma.csv", header=None, index=False)
+    
+    xi = np.mean(esti_preprocess.var())
+    xi = pd.DataFrame(np.array([xi]))
+    xi.to_csv("data/xi.csv", header=None, index=False)

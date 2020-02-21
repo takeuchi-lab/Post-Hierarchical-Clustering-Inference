@@ -17,7 +17,7 @@ DNA マイクロアレイにより計測された遺伝子発現量データの�
 ### クラスタ中心間の検定
 `cluster`ディレクトリ以下にあるものが相当する
 #### (必要時) コンパイル 
-次のコマンドで実行ファイルが`/cluster`直下に作成される
+次のコマンドで実行ファイルが`/cluster`直下に作成される (注意: 必要に応じて, eigenの参照パスを変更する必要がある)
     
     $ cd /cluster/cpp_source
     $ make
@@ -94,7 +94,7 @@ DNA マイクロアレイにより計測された遺伝子発現量データの�
 
 さらに <br>
 
-    $ python dendrogram_p.py
+    $ python display_dendro_p_cluster.py
 と実行するとp値を付与したデンドログラムが得られる
 
 <div align="center">
@@ -128,47 +128,119 @@ DNA マイクロアレイにより計測された遺伝子発現量データの�
 
 ### クラスタ中心の各次元での検定
 `each_dim`ディレクトリ以下にあるものが相当する
-#### 1. Preprocessing
-1. `data`というディレクトリを作成する 
-2. `data`ディレクトリに使いたいデータを入れ, 分散($\Sigma$, $\xi^2$)推定用とp値計算用に分ける (目安 分散推定: p値計算 = 2 : 8)
-3. `preprocess.py`によって`data`ディレクトリ以下に `Sigma.csv`, `Xi.csv`が出力されることを確認する <br>
 
-使用例 `preprocess.py data_estimate.csv`
+#### Preprocessing (実データ適用時)
+
+- 分散推定用とp値計算用にデータを分ける (分散推定: p値計算 = 2 : 8)
+- p値計算用は各変数で正規化される
+
+1. 前処理したいデータに対して, preprocess.pyを実行する
+2. `data`のディレクトリが作成され, `data`ディレクトリに次のファイルが作成される
+    - `data.csv` : p値計算用
+    - `d_ind.csv` : どのデータをp値計算に用いるか 
+    - `estimate.csv` : 分散推定用
+    - `Sigma.csv`, `Xi.csv` : $\Sigma, \Xi$それぞれ
+
+使用例 <br>
+    
+    $ preprocess.py data.csv
 
 
-#### 2. クラスタリングと検定の実行
+#### クラスタリングと検定の実行
 
 ##### 一つの階層でのp値を計算したい場合
 `execute.py`を実行する
 以下の引数が必要である
 - データファイルパス
 - $\Sigma$のファイルパス
-- $\xi^2$のファイルパス
+- $\Xi$のファイルパス
 - どの階層か
+- 並列計算するかどうか (2以上で並列となり, 指定したコア数で並列化する)
 
-使用例: `$ pyton calc_p.py data.csv data/sigma.csv data/xi.csv 0` 
+  
+
+使用例: `$ pyton execute.py data/data.csv data/Sigma.csv data/Xi.csv 0 1` 
 
 #### 全ての階層でのp値を計算したい場合
 `execute_allstep.py`を実行する
 必要な引数
 - データファイルパス
 - $\Sigma$のファイルパス
-- $\xi^2$のファイルパス
-- 全部で何階層か? (サンプルサイズ-1が全階層となる)
-使用例 $n=10, d=5$のデータの場合 (全ステップ数$n-1$を入力する必要があります) <br>
-`$ pyton calc_p.py data.csv data/sigma.csv data/xi.csv 9`
+- $\Xi$のファイルパス
+- 並列計算するかどうか (2以上で並列となり, 指定したコア数で並列化する)
 
-`calc_p.py`, `calc_p_all.py`両方とも, 次のcsvファイルが`result`ディレクトリ以下に出力される
+使用例 <br>
+
+    $ pyton execute_allstep.py data/data.csv data/Sigma.csv data/Xi.csv 1
+
+`execute.py`, `execute_allstep.py`両方とも, 次のcsvファイルが`result`ディレクトリ以下に出力される
 - output (クラスタリング結果 scikit-learnのlinkageの出力`Z`と同じフォーマット)
-p-valueは各csvファイルに次元数分のp値が記載される
+p-valueは各csvファイルに出力される
 - naive_p 
 - selective_p
 
-##### toyデータ
- `cluster`, `each_dim`ともに, `data`ディレクトリにtoyデータを入れておいたので, 使い方の確認に使ってください
+#### デモ
+クラスタ中心間の差の検定と同様に, `each_dim/data/`直下に簡単なdemoデータが置いてある <br>
+1次元目(横軸)ではわかれおらず, 2次元目(縦軸)でわかれているデータ
+<div align="center">
+
+![50%](figs/demo_data.svg)
+
+</div>
+
+例 <br>
+
+    $ python execute_allstep.py data/demo_data.csv data/demo_Sigma.csv data/demo_Xi.csv 1
+
+さらに <br>
+
+    $ python display_dendro_p_dim.py 0
+と実行すると1次元目における検定でのp値を付与したデンドログラムが得られる. 1次元目ではわかれていないので, 大きな値が得られる.
+
+<div align="center">
+
+![50%](figs/demo_dendrogram_p_dim0.svg)
+
+縦軸での検定結果. 実際にわかれているので, 一番上の階層においてp値が小さくなる
+</div>
+
+    $ python display_dendro_p_dim.py 1
+
+<div align="center">
+
+![50%](figs/demo_dendrogram_p_dim1.svg)
+
+</div>
+
 
 ### デンドログラムにp値を付与した図の表示
-`dendrogram_p.py`の中にある`pv_dendrogram`の関数をimportして使ってください
+`/cluster/display_dendro_p_cluster.py`もしくは`/each_dim/display_dendro_p_cluster.py`の`pv_dendrogram`の関数をimportして使ってください <br> <br>
+#### pv_dendrogram(sp, nap, start, output, root=0, width=100, height=0, decimal_place=3, font_size=15, **kwargs) 
+引数: <br>
+- sp: ndarray <br>
+    selective-p, ndarrayの次元は1次元にしてください
+- nap: ndarray <br>
+    naive-p, spと同様に1次元配列にしてください
+- start: int <br>
+    どの階層からp値を表示するか. 0とすれば, 最初から最後まで表示される. 
+- output: list, ndarray <br>
+    [scipy.cluster.hierarchy.linkage](https://docs.scipy.org/doc/scipy/reference/generated/scipy.cluster.hierarchy.linkage.html#scipy.cluster.hierarchy.linkage)の`Z`の形式      
+- root: int <br>
+    デンドログラムの出力を見やすくするために, `Z`の距離に指定された回数rootをとる. 初期値は0.
+- width: double <br>
+    各階層のnaive-p値とselective-p値を表示する際の横幅. 大きくすればするほど広がる. 初期値100.
+- height: double <br>
+    各階層のnaive-p値とselective-p値を表示する際の縦幅. 大きくすればするほど上に表示される. 初期値0.
+- decimal_place: int <br>
+    少数点何桁目まで表示するか. 初期値は3.
+- font_size: int <br>
+    naive, selectiveのp値および, 凡例の文字サイズ
+- **kwargs: 
+    [scipy.cluster.hierarchy.dendrogram](https://docs.scipy.org/doc/scipy/reference/generated/scipy.cluster.hierarchy.dendrogram.html#scipy.cluster.hierarchy.dendrogram)のkwargsを指定できます.
+        
+返り値:  <br>
+    [scipy.cluster.hierarchy.dendrogram](https://docs.scipy.org/doc/scipy/reference/generated/scipy.cluster.hierarchy.dendrogram.html#scipy.cluster.hierarchy.dendrogram)の出力
+    
 
 ## ディレクトリ
 
