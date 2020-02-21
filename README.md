@@ -201,8 +201,8 @@ p-valueは各csvファイルに出力される
 
 ![50%](figs/demo_dendrogram_p_dim0.svg)
 
-縦軸での検定結果. 実際にわかれているので, 一番上の階層においてp値が小さくなる
 </div>
+縦軸での検定結果. 実際にわかれているので, 一番上の階層においてp値が小さくなる
 
     $ python display_dendro_p_dim.py 1
 
@@ -235,7 +235,7 @@ p-valueは各csvファイルに出力される
     少数点何桁目まで表示するか. 初期値は3.
 - font_size: int <br>
     naive, selectiveのp値および, 凡例の文字サイズ
-- **kwargs: 
+- **kwargs: <br>
     [scipy.cluster.hierarchy.dendrogram](https://docs.scipy.org/doc/scipy/reference/generated/scipy.cluster.hierarchy.dendrogram.html#scipy.cluster.hierarchy.dendrogram)のkwargsを指定できます.
         
 返り値:  <br>
