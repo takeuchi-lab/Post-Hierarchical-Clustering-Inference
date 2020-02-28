@@ -82,7 +82,7 @@ Both `calc_p.py` and `calc_p_all.py`, the p-value calculation result is output u
 `stat` directory is output  a csv file that describes the statistic and the number of dimensions of data at each step, and `interval` directory is output the interval required when calculating the selective-p value <br>
 
 And, `cluster_result` directory is output the following csv file.
-- output.csv (It has the same format as `Z` of scikit-learn [linkage](https://docs.scipy.org/doc/scipy-0.14.0/reference/generated/scipy.cluster.step.linkage.html))
+- output.csv (It has the same format as `Z` of scikit-learn [linkage](https://docs.scipy.org/doc/scipy/reference/generated/scipy.cluster.hierarchy.linkage.html#scipy.cluster.hierarchy.linkage))
 
 #### demo
 Simple demo data is placed directly under `cluster/data/`
@@ -131,82 +131,89 @@ Example1 ($n = 10, \ldots, 50$, $d = 5$, calculation $1000$ times not parallel)
 
 
 ### Hypothesis testing for differences between each dimension of cluster centers
-`each_dim`ディレクトリ以下にあるものが相当する
+Under the `each_dim` directory
 
-#### Preprocessing (実データ適用時)
+#### Preprocessing (When applied to real data)
 
-- 分散推定用とp値計算用にデータを分ける (分散推定: p値計算 = 2 : 8)
-- p値計算用は各変数で正規化される
 
-1. 前処理したいデータに対して, preprocess.pyを実行する
-2. `data`のディレクトリが作成され, `data`ディレクトリに次のファイルが作成される
-    - `data.csv` : p値計算用
-    - `d_ind.csv` : どのデータをp値計算に用いるか 
-    - `estimate.csv` : 分散推定用
-    - `Sigma.csv`, `Xi.csv` : $\Sigma, \Xi$それぞれ
+- Split the data for variance estimation and p-value calculation (variance estimation: p-value calculation = 2: 8)
+- Data for p-value calculation is normalized each variables
 
-使用例 <br>
+
+1. Execute `preprocess.py` for the data you want to preprocess
+2. `data`,`stat`, and `interval` directorys are created, and the following files are created in the `data` directory
+    - `data.csv` : For p-value calculation
+    - `d_ind.csv` : Index which data to use for p-value calculations 
+    - `estimate.csv` : For estimation variances
+    - `sigma.csv`, `xi.csv` : $\Sigma, \xi$
+
+Example <br>
     
     $ preprocess.py data.csv
 
 
-#### クラスタリングと検定の実行
+#### Clustering and Hypothesis Testing
+##### Calculate p-value for one step
+run `execute.py`
 
-##### 一つの階層でのp値を計算したい場合
-`execute.py`を実行する
-以下の引数が必要である
-- データファイルパス
-- $\Sigma$のファイルパス
-- $\Xi$のファイルパス
-- どの階層か
-- 並列計算するかどうか (2以上で並列となり, 指定したコア数で並列化する)
-
+Arguments
+- path of `data.csv`
+- path of `Sigma.csv`
+- path of `Xi.csv`
+- step (0 ~ n - 2)
+- Whether to compute in parallel (2 or more: parallel)
   
+Example
 
-使用例: `$ pyton execute.py data/data.csv data/Sigma.csv data/Xi.csv 0 1` 
+    $ pyton execute.py data/data.csv data/Sigma.csv data/Xi.csv 0 1
 
-#### 全ての階層でのp値を計算したい場合
-`execute_allstep.py`を実行する
-必要な引数
-- データファイルパス
-- $\Sigma$のファイルパス
-- $\Xi$のファイルパス
-- 並列計算するかどうか (2以上で並列となり, 指定したコア数で並列化する)
+#### Calculate p-value for all steps
+run `execute_allstep.py`
 
-使用例 <br>
+Arguments
+- path of `data.csv`
+- path of `Sigma.csv`
+- path of `Xi.csv`
+- step (0 ~ n - 2)
+- Whether to compute in parallel (2 or more: parallel)
+
+Example <br>
 
     $ pyton execute_allstep.py data/data.csv data/Sigma.csv data/Xi.csv 1
 
-`execute.py`, `execute_allstep.py`両方とも, 次のcsvファイルが`result`ディレクトリ以下に出力される
-- output (クラスタリング結果 scikit-learnのlinkageの出力`Z`と同じフォーマット)
-p-valueは各csvファイルに出力される
-- naive_p 
-- selective_p
+Both calc_p.py and calc_p_all.py, the p-value calculation result is output under the result directory
 
-#### デモ
-クラスタ中心間の差の検定と同様に, `each_dim/data/`直下に簡単なdemoデータが置いてある <br>
-1次元目(横軸)ではわかれおらず, 2次元目(縦軸)でわかれているデータ
+Both `execute.py` and `execute_allstep.py`, the following csv file is output under the `result` directory
+- output.csv (It has the same format as `Z` of scikit-learn [linkage](https://docs.scipy.org/doc/scipy/reference/generated/scipy.cluster.hierarchy.linkage.html#scipy.cluster.hierarchy.linkage))
+
+p-values
+- naive_p.csv 
+- selective_p.csv
+
+#### demo
+Simple demo data is placed under `each_dim/data/` <br>
+Data not separated in the first dimension (horizontal axis) but separated in the second dimension (vertical axis)
 <div align="center">
 
 ![50%](figs/demo_data.svg)
 
 </div>
 
-例 <br>
+Example <br>
 
     $ python execute_allstep.py data/demo_data.csv data/demo_Sigma.csv data/demo_Xi.csv 1
 
-さらに <br>
+Display dendrogram <br>
 
     $ python display_dendro_p_dim.py 0
-と実行すると1次元目における検定でのp値を付与したデンドログラムが得られる. 1次元目ではわかれていないので, 大きな値が得られる.
-
+A dendrogram with the p-value given in the test in the first dimension is obtained.Since it doesn't separate in the first dimension, a large value is obtained.
 <div align="center">
 
 ![50%](figs/demo_dendrogram_p_dim0.svg)
 
 </div>
-縦軸での検定結果. 実際にわかれているので, 一番上の階層においてp値が小さくなる
+
+Test results in second dimension. At the top step of p-value is small  because data is actually separated in second dimension.
 
     $ python display_dendro_p_dim.py 1
 
@@ -217,36 +224,40 @@ p-valueは各csvファイルに出力される
 </div>
 
 
-### デンドログラムにp値を付与した図の表示
-`/cluster/display_dendro_p_cluster.py`もしくは`/each_dim/display_dendro_p_cluster.py`の`pv_dendrogram`の関数をimportして使ってください <br> <br>
+### Display dendrogram with p-value
+Please import `pv_dendrogram`function in the 
+`/cluster/display_dendro_p_cluster.py`or`/each_dim/display_dendro_p_cluster.py``pv_dendrogram` <br> <br>
 #### pv_dendrogram(sp, nap, start, output, root=0, width=100, height=0, decimal_place=3, font_size=15, **kwargs) 
-引数: <br>
+Arguments <br>
 - sp: ndarray <br>
-    selective-p, ndarrayの次元は1次元にしてください
+    The ndim of ndarray is one.
 - nap: ndarray <br>
-    naive-p, spと同様に1次元配列にしてください
+  The ndim of ndarray is one.
 - start: int <br>
-    どの階層からp値を表示するか. 0とすれば, 最初から最後まで表示される. 
+    From which hierarchy to display the p-value.
+    If start = 0, display p-value of all steps.
 - output: list, ndarray <br>
-    [scipy.cluster.step.linkage](https://docs.scipy.org/doc/scipy/reference/generated/scipy.cluster.step.linkage.html#scipy.cluster.step.linkage)の`Z`の形式      
+    `Z` of [scipy.cluster.step.linkage](https://docs.scipy.org/doc/scipy/reference/generated/scipy.cluster.step.linkage.html#scipy.cluster.step.linkage).      
 - root: int <br>
-    デンドログラムの出力を見やすくするために, `Z`の距離に指定された回数rootをとる. 初期値は0.
+    Takes the specified number of times square root in the distance of `Z`. Default is 0.
 - width: double <br>
-    各階層のnaive-p値とselective-p値を表示する際の横幅. 大きくすればするほど広がる. 初期値100.
+    Width between naive-p and selective-p values in each step. Default is 100.
 - height: double <br>
-    各階層のnaive-p値とselective-p値を表示する際の縦幅. 大きくすればするほど上に表示される. 初期値0.
+    Height when displaying naive-p value and selective-p value of each step. The higher the size, the higher it is displayed.
+    Default is 0.
 - decimal_place: int <br>
-    少数点何桁目まで表示するか. 初期値は3.
+    How many decimal places are displayed. Default is 3.
 - font_size: int <br>
-    naive, selectiveのp値および, 凡例の文字サイズ
+    Fontsize of naive-p, selective-p, and legend.
 - **kwargs: <br>
-    [scipy.cluster.step.dendrogram](https://docs.scipy.org/doc/scipy/reference/generated/scipy.cluster.step.dendrogram.html#scipy.cluster.step.dendrogram)のkwargsを指定できます.
+    It is possible to specify 
+    kwargs of [scipy.cluster.step.dendrogram](https://docs.scipy.org/doc/scipy/reference/generated/scipy.cluster.step.dendrogram.html#scipy.cluster.step.dendrogram).
         
-返り値:  <br>
-    [scipy.cluster.step.dendrogram](https://docs.scipy.org/doc/scipy/reference/generated/scipy.cluster.step.dendrogram.html#scipy.cluster.step.dendrogram)の出力
+Returns:  <br>
+    Output of [scipy.cluster.step.dendrogram](https://docs.scipy.org/doc/scipy/reference/generated/scipy.cluster.step.dendrogram.html#scipy.cluster.step.dendrogram).
     
 
-## ディレクトリ
+## Structure of directory
 
 ```
 root/
@@ -269,7 +280,7 @@ root/
     |- figs
     |- README.md
 ```
-### 注意事項
-#### dataについて
-- 基本的に`data.csv`, `sigma.csv`, `xi.csv`等は値のみのformatとしてください. そうでない場合, errorとなります.
+### Notes
+#### data
+- `data.csv`, `sigma.csv`, `xi.csv` should be a value-only format, otherwise an error will occur.
 
