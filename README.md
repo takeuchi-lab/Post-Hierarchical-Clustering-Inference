@@ -85,7 +85,7 @@ Other outputs
 - `stat` directory : output  a csv file that describes the statistic and the number of dimensions of data at each step
 - `interval` directory : output the interval required when calculating the selective-p value
 - `cluster_result` directory : output the following csv file.
-  - output.csv (It has the same format as `Z` of scikit-learn [linkage](https://docs.scipy.org/doc/scipy/reference/generated/scipy.cluster.hierarchy.linkage.html#scipy.cluster.hierarchy.linkage))
+  - output.csv (It has the same format as `Z` of scipy [linkage](https://docs.scipy.org/doc/scipy/reference/generated/scipy.cluster.hierarchy.linkage.html#scipy.cluster.hierarchy.linkage))
 
 #### <u> Demo </u>
 Simple demo data is placed directly under `cluster/data/`
@@ -184,7 +184,7 @@ Example <br>
 Both calc_p.py and calc_p_all.py, the p-value calculation result is output under the result directory.
 
 Both `execute.py` and `execute_allstep.py`, the following csv file is output under the `result` directory.
-- output.csv (It has the same format as `Z` of scikit-learn [linkage](https://docs.scipy.org/doc/scipy/reference/generated/scipy.cluster.hierarchy.linkage.html#scipy.cluster.hierarchy.linkage))
+- output.csv (It has the same format as `Z` of scipy [linkage](https://docs.scipy.org/doc/scipy/reference/generated/scipy.cluster.hierarchy.linkage.html#scipy.cluster.hierarchy.linkage))
 - naive_p.csv 
 - selective_p.csv
 
