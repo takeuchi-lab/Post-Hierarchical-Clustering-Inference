@@ -106,6 +106,11 @@ if __name__ == '__main__':
     threads = args[5]
     mu = args[6]
     
+    lastflag = False
+    if step == "last":
+        lastflag = True
+        step = int(n) - 2
+
     if int(step) > int(n) - 2:
         print("error!! please input step 0 ~ n - 2")
     else:
@@ -138,6 +143,8 @@ if __name__ == '__main__':
                 else: 
                     subprocess.run(['./pci_cluster_synthetic.exe', epo, str(n), d, step, str(1), str(i)])
             else:
+                if lastflag:
+                    step = str(i - 2)
                 statfile = "stat/test_stat_d" + "_epoch" + epo + "_step" + step + "_n" + str(i) + "_d" + d + ".csv"
                 intervalfile = "interval/final_interval" + "_epoch" + epo + "_step" + step + "_n" + str(i) + "_d" + d + ".csv"
                 if os.path.exists(statfile):
