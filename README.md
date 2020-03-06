@@ -221,6 +221,35 @@ Test results in second dimension. At the top step of p-value is small  because d
 
 </div>
 
+#### <u> Demo (synthetic) </u>
+synthetic experiments program in the `demo_synthetic` directory <br>
+Please run `execute_synthetic.py`
+
+
+Arguments
+- Number of epoch (default:1000)
+- Sample size <img src="https://latex.codecogs.com/gif.latex?n"> 
+- Dimension <img src="https://latex.codecogs.com/gif.latex?d"> 
+- step (<img src="https://latex.codecogs.com/gif.latex?$0&space;\sim&space;n&space;-&space;2$">) or last
+- Whether to compute in parallel (2 or more: parallel)
+- Mean <img src="https://latex.codecogs.com/gif.latex?\mu"> : Generate two clusters by changing the mean of half (<img src="https://latex.codecogs.com/gif.latex?n&space;/&space;2">) of the data
+
+***Setting mean that is the sixth argument to 0.0 is an experiment of FPR  , and to a value greater than 0.0 is an experiment for TPR.***
+
+**FPR** <br>
+Setting mean to 0.0 is an FPR experiment, and <img src="https://latex.codecogs.com/gif.latex?n"> becomes the maximum size (<img src="https://latex.codecogs.com/gif.latex?10,&space;20,&space;\ldots,&space;n">). <br>
+
+Example1 (Experiment of FPR, <img src="https://latex.codecogs.com/gif.latex?n&space;=&space;10,&space;\ldots,&space;50,&space;d&space;=&space;5">, first step, calculation of $1000$ times no parallel)
+    
+    $ python execute_synthetic.py 1000 50 5 0 1 0.0
+
+**TPR** <br> 
+Setting mean to a value greater than 0.0 is an TPR experiment, and <img src="https://latex.codecogs.com/gif.latex?\mu"> becomes the maximum size (0.5, 1.0, 1.5, ..., <img src="https://latex.codecogs.com/gif.latex?\mu">). <br>
+***In the TPR experiment, any value entered in the argument of step will be automatically changed to the last step.***
+
+Example2 (Experiment of TPR, <img src="https://latex.codecogs.com/gif.latex?n&space;=30,&space;d&space;=&space;10">, last step, calculation of 100 times, parallel computation using 3 cores, <img src="https://latex.codecogs.com/gif.latex?\mu&space;=&space;0.5,&space;1.0,&space;1.5,&space;2.0"> <br>
+
+    $ python execute_synthetic.py 1000 30 10 28 100 4 2.0
 
 ### Display dendrogram with p-value
 Please import `pv_dendrogram`function in the 
