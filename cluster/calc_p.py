@@ -105,7 +105,13 @@ if __name__ == '__main__':
     
     if not os.path.isdir("cluster_result"):
         os.mkdir("cluster_result")
-    
+
+    if not os.path.isdir("stat"):
+        os.mkdir("stat")
+
+    if not os.path.isdir("interval"):
+        os.mkdir("interval")
+
     
     statfile = "stat/test_stat" + "_step" + step + ".csv"
     intervalfile = "interval/final_interval" + "_step" + step + ".csv"

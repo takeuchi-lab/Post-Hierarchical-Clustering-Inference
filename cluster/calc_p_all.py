@@ -110,6 +110,12 @@ if __name__ == '__main__':
     if not os.path.isdir("cluster_result"):
         os.mkdir("cluster_result")
     
+    if not os.path.isdir("stat"):
+        os.mkdir("stat")
+
+    if not os.path.isdir("interval"):
+        os.mkdir("interval")
+
     naive_p_all = []
     selective_p_all = []
     for i in tqdm(range(all_step)):
