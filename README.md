@@ -35,7 +35,7 @@ Under the `cluster` directory.
     - `data.csv` : For p-value calculation
     - `d_ind.csv` : Index which data to use for p-value calculations 
     - `estimate.csv` : For estimation variances
-    - `sigma.csv`, `xi.csv` : <img src="https://latex.codecogs.com/gif.latex?\inline&space;\Sigma,&space;\xi"> 
+    - `sigma.csv`, `xi.csv` : <img src="https://latex.codecogs.com/gif.latex?\inline&space;\Sigma, &space;\xi"> 
 
 Example <br>
 
@@ -85,7 +85,7 @@ Other outputs
 - `stat` directory : output  a csv file that describes the statistic and the number of dimensions of data at each step
 - `interval` directory : output the interval required when calculating the selective-p value
 - `cluster_result` directory : output the following csv file.
-  - output.csv (It has the same format as `Z` of scipy [linkage](https://docs.scipy.org/doc/scipy/reference/generated/scipy.cluster.hierarchy.linkage.html#scipy.cluster.hierarchy.linkage))
+  - output.csv (It has the same format as `Z` of scipy [linkage](https://docs.scipy.org/doc/scipy/reference/generated/scipy.cluster.hierarchy.linkage.html))
 
 #### <u> Demo </u>
 Simple demo data is placed directly under `cluster/data/`
@@ -184,7 +184,7 @@ Example <br>
 Both calc_p.py and calc_p_all.py, the p-value calculation result is output under the result directory.
 
 Both `execute.py` and `execute_allstep.py`, the following csv file is output under the `result` directory.
-- output.csv (It has the same format as `Z` of scipy [linkage](https://docs.scipy.org/doc/scipy/reference/generated/scipy.cluster.hierarchy.linkage.html#scipy.cluster.hierarchy.linkage))
+- output.csv (It has the same format as `Z` of scipy [linkage](https://docs.scipy.org/doc/scipy/reference/generated/scipy.cluster.hierarchy.linkage.html))
 - naive_p.csv 
 - selective_p.csv
 
@@ -247,7 +247,7 @@ Example1 (Experiment of FPR, <img src="https://latex.codecogs.com/gif.latex?n&sp
 Setting mean to a value greater than 0.0 is an TPR experiment, and <img src="https://latex.codecogs.com/gif.latex?\mu"> becomes the maximum size (0.5, 1.0, 1.5, ..., <img src="https://latex.codecogs.com/gif.latex?\mu">). <br>
 ***In the TPR experiment, any value entered in the argument of step will be automatically changed to the last step.***
 
-Example2 (Experiment of TPR, <img src="https://latex.codecogs.com/gif.latex?n&space;=30,&space;d&space;=&space;10">, last step, calculation of 100 times, parallel computation using 3 cores, <img src="https://latex.codecogs.com/gif.latex?\mu&space;=&space;0.5,&space;1.0,&space;1.5,&space;2.0"> <br>
+Example2 (Experiment of TPR, <img src="https://latex.codecogs.com/gif.latex?n&space;=30,&space;d&space;=&space;10">, last step, calculation of 100 times, parallel computation using 3 cores, <img src="https://latex.codecogs.com/gif.latex?\mu&space;=&space;0.5,&space;1.0,&space;1.5,&space;2.0"> <br>****
 
     $ python execute_synthetic.py 1000 30 10 28 100 4 2.0
 
@@ -264,7 +264,7 @@ Arguments <br>
     From which hierarchy to display the p-value.
     If start = 0, display p-value of all steps.
 - output: list, ndarray <br>
-    `Z` of [scipy.cluster.step.linkage](https://docs.scipy.org/doc/scipy/reference/generated/scipy.cluster.step.linkage.html#scipy.cluster.step.linkage).      
+    `Z` of [scipy.cluster.hierarchy.linkage](https://docs.scipy.org/doc/scipy/reference/generated/scipy.cluster.hierarchy.linkage.html).      
 - root: int <br>
     Takes the specified number of times square root in the distance of `Z`. Default is 0.
 - width: double <br>
@@ -278,10 +278,10 @@ Arguments <br>
     Fontsize of naive-p, selective-p, and legend.
 - **kwargs: <br>
     It is possible to specify 
-    kwargs of [scipy.cluster.step.dendrogram](https://docs.scipy.org/doc/scipy/reference/generated/scipy.cluster.step.dendrogram.html#scipy.cluster.step.dendrogram).
+    kwargs of [scipy.cluster.hierarchy.dendrogram](https://docs.scipy.org/doc/scipy/reference/generated/scipy.cluster.hierarchy.dendrogram.html).
         
 Returns:  <br>
-    Output of [scipy.cluster.step.dendrogram](https://docs.scipy.org/doc/scipy/reference/generated/scipy.cluster.step.dendrogram.html#scipy.cluster.step.dendrogram).
+    Output of [scipy.cluster.hierarchy.dendrogram](https://docs.scipy.org/doc/scipy/reference/generated/scipy.cluster.hierarchy.dendrogram.html).
     
 
 ## Structure of directory
